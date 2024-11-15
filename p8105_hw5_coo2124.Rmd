@@ -33,9 +33,9 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-#problem 1
+problem 1
 
-# Function to simulate birthdays and checks whether there are duplicate birthdays in the group
+Function to simulate birthdays and checks whether there are duplicate birthdays in the group
 ```{r}
 simulate_shared_birthday = function(n) {
   birthdays = sample(1:365, n, replace = TRUE)
@@ -44,7 +44,7 @@ simulate_shared_birthday = function(n) {
 ```
 
 
-#Run this function 10,000 times for each group size between 2 and 50.
+Run this function 10,000 times for each group size between 2 and 50.
 ```{r}
 
 
