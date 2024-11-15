@@ -74,4 +74,87 @@ ggplot(result_final, aes(x = group_size, y = prob_duplicate)) +
   theme_minimal()
 ```
 
+comment 
+As the group size (n) increases, the probability of at least two people sharing a birthday rises rapidly, surpassing 50% with just 23 people. By a group of 50, the probability is nearly 100%, making a shared birthday almost certain. The plot highlights a nonlinear relationship, with a sharp increase for smaller groups that gradually levels off as the probability approaches 1, showing diminishing returns beyond 30 people.
+
+
 ## problem 2
+```{r}
+
+simulate_t_test <- function(mu, n = 30, sigma = 5) {
+  data <- rnorm(n, mean = mu, sd = sigma)
+  
+  t_test_result <- t.test(data, mu = 0) %>% 
+    broom::tidy()
+  
+  tibble(
+    mu_hat = t_test_result$estimate,
+    p_value = t_test_result$p.value
+  )
+}
+
+simulate_for_mu = function(mu, n = 30, sigma = 5, simulations = 5000) {
+  results = map_dfr(1:simulations, ~ simulate_t_test(mu, n, sigma))
+  
+  power = mean(results$p_value < 0.05)
+  avg_mu = mean(results$mu_hat)
+  avg_mu_rejected = mean(results$mu_hat[results$p_value < 0.05], na.rm = TRUE)
+  
+  tibble(
+    true_mu = mu,
+    power = power,
+    avg_mu = avg_mu,
+    avg_mu_rejected = avg_mu_rejected
+  )
+}
+
+mu_values = c(1,2,3,4,5,6)
+simulation_results <- map_dfr(mu_values, simulate_for_mu)
+
+simulation_results
+```
+
+
+```{r}
+ggplot(simulation_results, aes(x = true_mu, y = power)) +
+  geom_line(color = "pink") +
+  geom_point(color = "purple") +
+  labs(
+    title = "Power of the Test vs. True Mu",
+    x = "True Value of Mu",
+    y = "Power"
+  ) +
+  theme_minimal()
+```
+
+comments
+The plot shows that as the true value of mu increases, the power of the test rises sharply. For smaller mu, the power is low, but it quickly approaches 1 for larger mu, indicating a higher likelihood of correctly rejecting the null hypothesis as the effect size grows.
+
+
+```{r}
+ggplot(simulation_results, aes(x = true_mu)) +
+  geom_line(aes(y = avg_mu), color = "green", linetype = "solid", size = 1) +
+  geom_line(aes(y = avg_mu_rejected), color = "orange", linetype = "solid", size = 1) +
+  geom_point(aes(y = avg_mu), color = "green") +
+  geom_point(aes(y = avg_mu_rejected), color = "orange") +
+  labs(
+    title = "Average Estimate of Mu vs. True Mu",
+    x = "True Value of Mu",
+    y = "Average Estimate"
+  ) +
+  theme_minimal()
+```
+
+comments
+The sample average of 𝜇̂ across tests where the null hypothesis was rejected is not approximately equal to the true value of𝜇. This is due to selection bias: tests that reject the null (p<0.05) are more likely to come from samples where 𝜇̂deviates significantly from 0, leading to inflated estimates. This is evident in the plot, where the orange line representing the average of 𝜇̂for rejected samples consistently lies above the true value of𝜇In contrast, the green line, which shows the overall average of 𝜇̂ across all samples, aligns closely with the true value, demonstrating that the estimation process is unbiased when considering all data. Thus, focusing only on rejected samples results in biased, upwardly skewed estimates that do not accurately reflect the true mean.
+  
+  
+
+## problem 3
+```{r}
+
+```
+
+
+
+
