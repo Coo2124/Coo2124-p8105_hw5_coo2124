@@ -159,6 +159,10 @@ homicide_data <- read_csv("https://raw.githubusercontent.com/washingtonpost/data
 str(homicide_data)
 ```
 
+comments
+
+The raw dataset contains 52,179 rows and 12 columns, with each row representing a unique homicide case from 50 large U.S. cities. The dataset includes demographic details about the victims, such as their first and last names (victim_first, victim_last), race (victim_race), age (victim_age), and sex (victim_sex). Geographic information is provided through the city and state where the homicide occurred (city, state), as well as latitude and longitude (lat, lon) for mapping purposes. The date the homicide was reported is recorded in the reported_date column, and each case is uniquely identified by the uid column. The disposition column indicates the status of each case, distinguishing between solved cases (e.g., "Closed by arrest") and unsolved cases (e.g., "Open/No arrest"). This dataset provides a comprehensive view of homicide cases, enabling detailed analysis of trends, victim demographics, and case outcomes across major U.S. cities. Some columns, such as victim_age and geographic coordinates, may contain missing values, which should be accounted for in the analysis.
+
 
 Create city_state variable and summarize homicides
 ```{r}
@@ -187,5 +191,52 @@ baltimore_result = broom::tidy(baltimore_test) %>%
   select(estimate, conf.low, conf.high)
 
 baltimore_result
+```
+
+```{r}
+
+city_results = homicide_summary %>%
+  mutate(
+    prop_test = map2(
+      unsolved_homicides,
+      total_homicides,
+      ~ prop.test(.x, .y) %>% broom::tidy()
+    )
+  ) %>%
+  unnest(prop_test) %>%
+  select(city_state, estimate, conf.low, conf.high)
+
+city_results
+```
+
+Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. 
+```{r}
+city_results = homicide_summary %>%
+  mutate(
+    prop_test = map2(
+      unsolved_homicides,
+      total_homicides,
+      ~ prop.test(.x, .y) %>% broom::tidy()
+    )
+  ) %>%
+  unnest(prop_test) %>%
+  select(city_state, estimate, conf.low, conf.high)
+
+city_results
+```
+
+Create a plot that shows the estimates and CIs for each city – check out geom_errorbar for a way to add error bars based on the upper and lower limits. 
+```{r}
+ggplot(city_results, aes(x = reorder(city_state, estimate), y = estimate)) +
+  geom_point(size = 2, color = "pink") +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.3, color = "purple") +
+  labs(
+    title = "Proportion of Unsolved Homicides by City",
+    x = "City",
+    y = "Estimated Proportion of Unsolved Homicides"
+  ) +
+  coord_flip() +  
+  theme_minimal()
+
 ```
 
