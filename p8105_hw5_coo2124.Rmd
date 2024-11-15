@@ -33,7 +33,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-problem 1
+## problem 1
 
 Function to simulate birthdays and checks whether there are duplicate birthdays in the group
 ```{r}
@@ -63,6 +63,15 @@ result_final
 
 Make a plot showing the probability as a function of group size, and comment on your results.
 ```{r}
-
+ggplot(result_final, aes(x = group_size, y = prob_duplicate)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Probability of People Sharing a Birthday",
+    x = "Group Size",
+    y = "Probability"
+  ) +
+  theme_minimal()
 ```
 
+## problem 2
