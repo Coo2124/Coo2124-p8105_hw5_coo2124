@@ -46,7 +46,23 @@ simulate_shared_birthday = function(n) {
 
 Run this function 10,000 times for each group size between 2 and 50.
 ```{r}
+compute_duplicate_probability <- function(n) {
+  simulations <- map_lgl(1:10000, ~simulate_shared_birthday(n))
+  prob <- mean(simulations)
+  
+  tibble(
+    group_size = n,
+    prob_duplicate = prob
+  )
+}
 
+result_final <- map_dfr(2:50, compute_duplicate_probability)
+result_final
+```
+
+
+Make a plot showing the probability as a function of group size, and comment on your results.
+```{r}
 
 ```
 
